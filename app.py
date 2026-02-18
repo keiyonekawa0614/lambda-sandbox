@@ -11,7 +11,7 @@ table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     try:
-        # API Gateway等からの呼び出しを想定しています
+        # API Gateway等からの呼び出しを想定
         body = json.loads(event.get('body', '{}'))
         
         # V1仕様: titleのみ必須、他は任意
