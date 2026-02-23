@@ -3,14 +3,13 @@ import json
 import os
 import uuid
 import boto3
-import time
 
 dynamodb = boto3.resource('dynamodb')
 table_name = os.environ.get('TABLE_NAME', 'BookshelfTable')
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
-    time.sleep(5)
+
     try:
         body = json.loads(event.get('body', '{}'))
         
@@ -21,14 +20,20 @@ def lambda_handler(event, context):
         # V1の古い形式のデータが送られてくると、ここに'rating'キーが存在しないため KeyError でクラッシュします
         rating = int(body['rating']) 
         
-        item = {
-            'book_id': str(uuid.uuid4()),
-            'title': title,
-            'author': author,
-            'rating': rating
-        }
-        
-        table.put_item(Item=item)
+        # 【変更点】意図的なスロットリング（リソース超過）を発生させるためのループ処理
+        # WCU=1の設定に対して、一気に100件の書き込みリクエストを送信してキャパシティを枯渇させます
+        for i in range(100):
+            item = {
+                'book_id': str(uuid.uuid4()), # 毎回異なるIDを生成
+                'title': f"{title} - Vol.{i}",
+                'author': author,
+                'rating': rating,
+                # 1KBのダミーデータを追加してWCUの消費を促進（確実にスロットリングさせるため）
+                'dummy_data': 'x' * 1024 
+            }
+            
+            # ここで連続して書き込むことで、ProvisionedThroughputExceededException を誘発します
+            table.put_item(Item=item)
         
         return {
             "statusCode": 200,
