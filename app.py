@@ -22,7 +22,7 @@ def lambda_handler(event, context):
         
         # 【変更点】意図的なスロットリング（リソース超過）を発生させるためのループ処理
         # WCU=1の設定に対して、一気に100件の書き込みリクエストを送信してキャパシティを枯渇させます
-        for i in range(100):
+        for i in range(1000):
             item = {
                 'book_id': str(uuid.uuid4()), # 毎回異なるIDを生成
                 'title': f"{title} - Vol.{i}",
