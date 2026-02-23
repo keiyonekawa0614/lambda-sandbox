@@ -9,6 +9,7 @@ table_name = os.environ.get('TABLE_NAME', 'BookshelfTable')
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
+    time.sleep(5)
     try:
         body = json.loads(event.get('body', '{}'))
         
