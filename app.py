@@ -3,6 +3,7 @@ import json
 import os
 import uuid
 import boto3
+import time
 
 dynamodb = boto3.resource('dynamodb')
 table_name = os.environ.get('TABLE_NAME', 'BookshelfTable')
