@@ -4,7 +4,14 @@ import os
 import uuid
 import boto3
 
-dynamodb = boto3.resource('dynamodb')
+my_config = Config(
+    retries = {
+        'max_attempts': 1,
+        'mode': 'standard'
+    }
+)
+
+dynamodb = boto3.resource('dynamodb', config=my_config)
 table_name = os.environ.get('TABLE_NAME', 'BookshelfTable')
 table = dynamodb.Table(table_name)
 
